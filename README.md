@@ -2,22 +2,37 @@
 
 A Windows desktop application that lets you search for images on Shutterstock, preview them as clickable thumbnails in a grid, and download full-resolution versions to a local folder — all through the official Shutterstock API.
 
-## Requirements to Run from Source
+## How to Run the Project
 
-- **Python 3.10+**
-- Install dependencies:
-  ```bash
-  pip install -r requirements.txt
-  ```
+You can run this application either directly from the Python source code or by launching the compiled executable. 
 
-## How to Run
+### Option 1: Running the Executable (No Python Required)
+If you just want to use the application without dealing with code, use the compiled `.exe`:
+1. Navigate to the `dist/` folder.
+2. Double-click `ShutterstockImageTool.exe`.
+*Note: If you haven't built the executable yet, see the "How to Rebuild the .exe" section below.*
 
-```bash
-python main.py
-```
+### Option 2: Running from Source (For Developers)
 
-The application will open with a search interface. On first launch, the Settings dialog will open automatically so you can enter your API token.
+If you have **Python 3.10+** installed, you can run the source code directly:
 
+1. Open your terminal in the project directory.
+2. (Optional but recommended) Create a virtual environment:
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+3. Install the required dependencies:
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
+4. Run the application:
+   ```bash
+   python main.py
+   ```
+
+**Upon First Launch:**
+Whether running the `.exe` or from source, the application will open the main search interface. The **Settings** dialog will pop up automatically, prompting you to enter your API token so you can start searching immediately!
 ## How to Get a Shutterstock API Token
 
 1. Go to the [Shutterstock Developer Portal](https://www.shutterstock.com/developers/).
