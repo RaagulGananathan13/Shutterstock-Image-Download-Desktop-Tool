@@ -56,22 +56,25 @@ Default download folder: `~/Downloads/ShutterstockImages`
 
 ## How to Rebuild the .exe
 
-On a **Windows** machine with Python installed:
+If you want to package the app into a standalone `.exe` (so you can run it on Windows machines without Python installed), you can use PyInstaller.
+
+Here are the bulletproof commands to run from your terminal (this avoids those annoying "pyinstaller is not recognized" PATH errors):
 
 ```bash
-pip install -r requirements.txt
-pip install pyinstaller
+# 1. Make sure you have the required packages
+python -m pip install -r requirements.txt
+python -m pip install pyinstaller
 
-pyinstaller --noconfirm --onefile --windowed ^
-  --name "ShutterstockImageTool" ^
-  --add-data "assets;assets" ^
-  main.py
+# 2. Make sure the assets folder and placeholder exist
+python generate_placeholder.py
+
+# 3. Build the executable
+python -m PyInstaller --noconfirm --onefile --windowed --name "ShutterstockImageTool" --add-data "assets;assets" main.py
 ```
 
-The output will be in `dist/ShutterstockImageTool.exe`. This is a self-contained executable that runs on any Windows machine without Python installed.
+Once it finishes, you'll find your compiled, self-contained executable sitting right in the `dist` folder (`dist/ShutterstockImageTool.exe`). Just double-click it to run!
 
-If you encounter Pillow-related errors in the packaged build, add `--collect-all Pillow` to the PyInstaller command.
-
+*(Note: If you run into Pillow-related issues later down the road, you can tack on `--collect-all Pillow` to that PyInstaller command).*
 ## Libraries Used
 
 | Library | Purpose |
