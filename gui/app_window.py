@@ -49,9 +49,9 @@ class AppWindow:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("Shutterstock Image Search & Download")
-        self.root.geometry("920x680")
-        self.root.minsize(700, 500)
-        self.root.configure(bg="#1e1e2e")
+        self.root.geometry("1024x768")
+        self.root.minsize(800, 600)
+        self.root.configure(bg="#09090b")
 
         # Try to set the window icon
         try:
@@ -129,11 +129,14 @@ class AppWindow:
         # Configure dark theme for ttk
         style = ttk.Style()
         style.theme_use("clam")
-        style.configure(".", background="#1e1e2e", foreground="#e0e0e0")
+        style.configure(".", background="#09090b", foreground="#f4f4f5")
 
         # ---- Top bar (search + settings) ----
-        top_frame = tk.Frame(self.root, bg="#1e1e2e", padx=12, pady=10)
+        top_frame = tk.Frame(self.root, bg="#18181b", padx=24, pady=20)
         top_frame.pack(fill="x")
+        
+        # Subtle border below top bar
+        tk.Frame(self.root, bg="#27272a", height=1).pack(fill="x")
 
         # Search entry
         self._search_var = tk.StringVar()
@@ -141,52 +144,52 @@ class AppWindow:
             top_frame,
             textvariable=self._search_var,
             font=("Segoe UI", 12),
-            bg="#2a2a3e",
-            fg="#e0e0e0",
-            insertbackground="#7c5cfc",
+            bg="#27272a",
+            fg="#f4f4f5",
+            insertbackground="#e11d48",
             relief="flat",
             bd=0,
             highlightthickness=2,
-            highlightcolor="#7c5cfc",
-            highlightbackground="#3a3a4e",
+            highlightcolor="#e11d48",
+            highlightbackground="#27272a",
         )
-        self._search_entry.pack(side="left", fill="x", expand=True, ipady=8)
+        self._search_entry.pack(side="left", fill="x", expand=True, ipady=10)
         self._search_entry.bind("<Return>", self._on_search_enter)
         self._search_entry.bind("<KeyRelease>", self._on_search_key_release)
 
         # Search button
         self._search_btn = tk.Button(
             top_frame,
-            text="🔍 Search",
+            text="Search",
             font=("Segoe UI Semibold", 11),
-            bg="#7c5cfc",
+            bg="#e11d48",
             fg="#ffffff",
-            activebackground="#6a4ce0",
+            activebackground="#be123c",
             activeforeground="#ffffff",
             relief="flat",
             bd=0,
             cursor="hand2",
             command=self._on_search,
-            padx=16,
+            padx=24,
         )
-        self._search_btn.pack(side="left", padx=(10, 0), ipady=6)
+        self._search_btn.pack(side="left", padx=(16, 0), ipady=8)
 
         # Settings button
         settings_btn = tk.Button(
             top_frame,
             text="⚙",
-            font=("Segoe UI", 14),
-            bg="#2a2a3e",
-            fg="#b0b0d0",
-            activebackground="#3a3a4e",
-            activeforeground="#e0e0e0",
+            font=("Segoe UI", 15),
+            bg="#18181b",
+            fg="#a1a1aa",
+            activebackground="#27272a",
+            activeforeground="#f4f4f5",
             relief="flat",
             bd=0,
             cursor="hand2",
             command=self._open_settings,
             width=3,
         )
-        settings_btn.pack(side="left", padx=(8, 0), ipady=3)
+        settings_btn.pack(side="left", padx=(12, 0), ipady=6)
 
         # ---- Thumbnail grid (center) ----
         self._grid = ThumbnailGrid(
@@ -197,7 +200,7 @@ class AppWindow:
 
         # Show welcome message
         self._grid.show_message(
-            "🔍  Enter a keyword above and click Search\nto find Shutterstock images"
+            "Find your next masterpiece.\nEnter a keyword to search Shutterstock."
         )
 
         # ---- Autocomplete dropdown ----
@@ -207,75 +210,80 @@ class AppWindow:
         )
 
         # ---- Pagination bar ----
-        self._pagination_frame = tk.Frame(self.root, bg="#252538", pady=6)
+        tk.Frame(self.root, bg="#27272a", height=1).pack(fill="x")
+        self._pagination_frame = tk.Frame(self.root, bg="#09090b", pady=16)
         self._pagination_frame.pack(fill="x")
 
         self._prev_btn = tk.Button(
             self._pagination_frame,
             text="◀ Prev",
             font=("Segoe UI", 10),
-            bg="#3a3a4e",
-            fg="#b0b0d0",
-            activebackground="#4a4a5e",
-            activeforeground="#e0e0e0",
+            bg="#18181b",
+            fg="#f4f4f5",
+            activebackground="#27272a",
+            activeforeground="#ffffff",
             relief="flat",
             bd=0,
             cursor="hand2",
             command=self._prev_page,
             state="disabled",
+            disabledforeground="#3f3f46",
         )
-        self._prev_btn.pack(side="left", padx=(12, 8), ipady=4)
+        self._prev_btn.pack(side="left", padx=(24, 8), ipady=6, ipadx=8)
 
         self._page_label = tk.Label(
             self._pagination_frame,
             text="",
             font=("Segoe UI", 10),
-            fg="#b0b0d0",
-            bg="#252538",
+            fg="#a1a1aa",
+            bg="#09090b",
         )
-        self._page_label.pack(side="left", padx=8)
+        self._page_label.pack(side="left", padx=12)
 
         self._next_btn = tk.Button(
             self._pagination_frame,
             text="Next ▶",
             font=("Segoe UI", 10),
-            bg="#3a3a4e",
-            fg="#b0b0d0",
-            activebackground="#4a4a5e",
-            activeforeground="#e0e0e0",
+            bg="#18181b",
+            fg="#f4f4f5",
+            activebackground="#27272a",
+            activeforeground="#ffffff",
             relief="flat",
             bd=0,
             cursor="hand2",
             command=self._next_page,
             state="disabled",
+            disabledforeground="#3f3f46",
         )
-        self._next_btn.pack(side="left", padx=8, ipady=4)
+        self._next_btn.pack(side="left", padx=8, ipady=6, ipadx=8)
 
         # Per-page dropdown
         per_page_label = tk.Label(
             self._pagination_frame,
             text="Per page:",
-            font=("Segoe UI", 9),
-            fg="#888898",
-            bg="#252538",
+            font=("Segoe UI", 10),
+            fg="#a1a1aa",
+            bg="#09090b",
         )
-        per_page_label.pack(side="right", padx=(0, 4))
+        per_page_label.pack(side="right", padx=(0, 8))
 
         self._per_page_var = tk.StringVar(value="20")
         style.configure("PerPage.TCombobox",
-                        fieldbackground="#2a2a3e",
-                        background="#3a3a4e",
-                        foreground="#e0e0e0")
+                        fieldbackground="#18181b",
+                        background="#27272a",
+                        foreground="#f4f4f5",
+                        bordercolor="#27272a",
+                        arrowcolor="#a1a1aa")
         self._per_page_combo = ttk.Combobox(
             self._pagination_frame,
             textvariable=self._per_page_var,
             values=["10", "20", "30", "50"],
             state="readonly",
-            width=4,
-            font=("Segoe UI", 9),
+            width=5,
+            font=("Segoe UI", 10),
             style="PerPage.TCombobox",
         )
-        self._per_page_combo.pack(side="right", padx=(0, 12))
+        self._per_page_combo.pack(side="right", padx=(0, 24))
         self._per_page_combo.bind("<<ComboboxSelected>>", self._on_per_page_change)
 
         # ---- Download progress bar ----

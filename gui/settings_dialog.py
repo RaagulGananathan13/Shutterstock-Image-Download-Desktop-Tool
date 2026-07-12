@@ -26,11 +26,11 @@ class SettingsDialog(tk.Toplevel):
         self._on_save = on_save
 
         self.title("Settings")
-        self.configure(bg="#1e1e2e")
+        self.configure(bg="#09090b")
         self.resizable(False, False)
 
         # Center the dialog over the parent
-        dialog_w, dialog_h = 520, 340
+        dialog_w, dialog_h = 560, 360
         parent_x = parent.winfo_rootx()
         parent_y = parent.winfo_rooty()
         parent_w = parent.winfo_width()
@@ -59,29 +59,29 @@ class SettingsDialog(tk.Toplevel):
         # ---- Title ----
         title_label = tk.Label(
             self,
-            text="⚙  Settings",
-            font=("Segoe UI Semibold", 16),
-            fg="#e0e0e0",
-            bg="#1e1e2e",
+            text="⚙ Settings",
+            font=("Segoe UI Semibold", 18),
+            fg="#f4f4f5",
+            bg="#09090b",
             anchor="w",
         )
-        title_label.pack(fill="x", padx=24, pady=(20, 16))
+        title_label.pack(fill="x", padx=32, pady=(24, 20))
 
         # ---- API Token ----
-        token_frame = tk.Frame(self, bg="#1e1e2e")
-        token_frame.pack(fill="x", padx=24, pady=(0, 12))
+        token_frame = tk.Frame(self, bg="#09090b")
+        token_frame.pack(fill="x", padx=32, pady=(0, 16))
 
         tk.Label(
             token_frame,
             text="Shutterstock API Token",
-            font=("Segoe UI", 10),
-            fg="#b0b0d0",
-            bg="#1e1e2e",
+            font=("Segoe UI", 11),
+            fg="#a1a1aa",
+            bg="#09090b",
             anchor="w",
         ).pack(fill="x")
 
-        token_input_frame = tk.Frame(token_frame, bg="#1e1e2e")
-        token_input_frame.pack(fill="x", pady=(4, 0))
+        token_input_frame = tk.Frame(token_frame, bg="#09090b")
+        token_input_frame.pack(fill="x", pady=(6, 0))
 
         self._token_var = tk.StringVar(value=self._config.get("api_token", ""))
         self._show_token = False
@@ -90,122 +90,122 @@ class SettingsDialog(tk.Toplevel):
             token_input_frame,
             textvariable=self._token_var,
             show="•",
-            font=("Consolas", 11),
-            bg="#2a2a3e",
-            fg="#e0e0e0",
-            insertbackground="#7c5cfc",
+            font=("Consolas", 12),
+            bg="#18181b",
+            fg="#f4f4f5",
+            insertbackground="#e11d48",
             relief="flat",
             bd=0,
-            highlightthickness=1,
-            highlightcolor="#7c5cfc",
-            highlightbackground="#3a3a4e",
+            highlightthickness=2,
+            highlightcolor="#e11d48",
+            highlightbackground="#27272a",
         )
-        self._token_entry.pack(side="left", fill="x", expand=True, ipady=6)
+        self._token_entry.pack(side="left", fill="x", expand=True, ipady=8)
 
         self._toggle_btn = tk.Button(
             token_input_frame,
             text="Show",
-            font=("Segoe UI", 9),
-            bg="#3a3a4e",
-            fg="#b0b0d0",
-            activebackground="#4a4a5e",
-            activeforeground="#e0e0e0",
+            font=("Segoe UI", 10),
+            bg="#27272a",
+            fg="#a1a1aa",
+            activebackground="#3f3f46",
+            activeforeground="#f4f4f5",
             relief="flat",
             bd=0,
             cursor="hand2",
             command=self._toggle_token_visibility,
-            width=5,
+            width=6,
         )
-        self._toggle_btn.pack(side="right", padx=(6, 0), ipady=4)
+        self._toggle_btn.pack(side="right", padx=(8, 0), ipady=6)
 
         # ---- Download Folder ----
-        folder_frame = tk.Frame(self, bg="#1e1e2e")
-        folder_frame.pack(fill="x", padx=24, pady=(0, 12))
+        folder_frame = tk.Frame(self, bg="#09090b")
+        folder_frame.pack(fill="x", padx=32, pady=(0, 16))
 
         tk.Label(
             folder_frame,
             text="Download Folder",
-            font=("Segoe UI", 10),
-            fg="#b0b0d0",
-            bg="#1e1e2e",
+            font=("Segoe UI", 11),
+            fg="#a1a1aa",
+            bg="#09090b",
             anchor="w",
         ).pack(fill="x")
 
-        folder_input_frame = tk.Frame(folder_frame, bg="#1e1e2e")
-        folder_input_frame.pack(fill="x", pady=(4, 0))
+        folder_input_frame = tk.Frame(folder_frame, bg="#09090b")
+        folder_input_frame.pack(fill="x", pady=(6, 0))
 
         self._folder_var = tk.StringVar(value=self._config.get("download_folder", ""))
 
         self._folder_entry = tk.Entry(
             folder_input_frame,
             textvariable=self._folder_var,
-            font=("Segoe UI", 10),
-            bg="#2a2a3e",
-            fg="#e0e0e0",
-            insertbackground="#7c5cfc",
+            font=("Segoe UI", 11),
+            bg="#18181b",
+            fg="#f4f4f5",
+            insertbackground="#e11d48",
             relief="flat",
             bd=0,
-            highlightthickness=1,
-            highlightcolor="#7c5cfc",
-            highlightbackground="#3a3a4e",
+            highlightthickness=2,
+            highlightcolor="#e11d48",
+            highlightbackground="#27272a",
         )
-        self._folder_entry.pack(side="left", fill="x", expand=True, ipady=6)
+        self._folder_entry.pack(side="left", fill="x", expand=True, ipady=8)
 
         browse_btn = tk.Button(
             folder_input_frame,
             text="Browse",
-            font=("Segoe UI", 9),
-            bg="#3a3a4e",
-            fg="#b0b0d0",
-            activebackground="#4a4a5e",
-            activeforeground="#e0e0e0",
+            font=("Segoe UI", 10),
+            bg="#27272a",
+            fg="#a1a1aa",
+            activebackground="#3f3f46",
+            activeforeground="#f4f4f5",
             relief="flat",
             bd=0,
             cursor="hand2",
             command=self._browse_folder,
-            width=7,
+            width=8,
         )
-        browse_btn.pack(side="right", padx=(6, 0), ipady=4)
+        browse_btn.pack(side="right", padx=(8, 0), ipady=6)
 
         # ---- Config path info ----
         config_path = get_config_path_for_display()
         info_label = tk.Label(
             self,
             text=f"Config stored at: {config_path}",
-            font=("Segoe UI", 8),
-            fg="#666680",
-            bg="#1e1e2e",
+            font=("Segoe UI", 9),
+            fg="#71717a",
+            bg="#09090b",
             anchor="w",
         )
-        info_label.pack(fill="x", padx=24, pady=(0, 16))
+        info_label.pack(fill="x", padx=32, pady=(4, 16))
 
         # ---- Buttons ----
-        btn_frame = tk.Frame(self, bg="#1e1e2e")
-        btn_frame.pack(fill="x", padx=24, pady=(8, 20))
+        btn_frame = tk.Frame(self, bg="#09090b")
+        btn_frame.pack(fill="x", padx=32, pady=(12, 24))
 
         cancel_btn = tk.Button(
             btn_frame,
             text="Cancel",
-            font=("Segoe UI", 10),
-            bg="#3a3a4e",
-            fg="#b0b0d0",
-            activebackground="#4a4a5e",
-            activeforeground="#e0e0e0",
+            font=("Segoe UI", 11),
+            bg="#27272a",
+            fg="#a1a1aa",
+            activebackground="#3f3f46",
+            activeforeground="#f4f4f5",
             relief="flat",
             bd=0,
             cursor="hand2",
             command=self._on_cancel,
             width=10,
         )
-        cancel_btn.pack(side="right", ipady=6, padx=(8, 0))
+        cancel_btn.pack(side="right", ipady=6, padx=(12, 0))
 
         save_btn = tk.Button(
             btn_frame,
             text="Save",
-            font=("Segoe UI Semibold", 10),
-            bg="#7c5cfc",
+            font=("Segoe UI Semibold", 11),
+            bg="#e11d48",
             fg="#ffffff",
-            activebackground="#6a4ce0",
+            activebackground="#be123c",
             activeforeground="#ffffff",
             relief="flat",
             bd=0,

@@ -24,29 +24,29 @@ class StatusBar(tk.Frame):
             text="Ready",
             anchor="w",
             padx=8,
-            pady=4,
-            font=("Segoe UI", 9),
-            fg="#e0e0e0",
-            bg="#1e1e2e",
+            pady=6,
+            font=("Segoe UI", 10),
+            fg="#a1a1aa",
+            bg="#18181b",
         )
         self._label.pack(fill="x", expand=True)
-        self.configure(bg="#1e1e2e")
+        self.configure(bg="#18181b")
 
-    def set_status(self, text: str, color: str = "#e0e0e0") -> None:
+    def set_status(self, text: str, color: str = "#a1a1aa") -> None:
         """Update the status text and optionally the text color."""
         self._label.config(text=text, fg=color)
 
     def set_error(self, text: str) -> None:
         """Show an error message in red."""
-        self.set_status(f"⚠ {text}", color="#ff6b6b")
+        self.set_status(f"⚠ {text}", color="#ef4444")
 
     def set_success(self, text: str) -> None:
         """Show a success message in green."""
-        self.set_status(f"✓ {text}", color="#51cf66")
+        self.set_status(f"✓ {text}", color="#22c55e")
 
     def set_info(self, text: str) -> None:
         """Show an info message in default color."""
-        self.set_status(text, color="#e0e0e0")
+        self.set_status(text, color="#f4f4f5")
 
 
 # ---------------------------------------------------------------------------
@@ -58,25 +58,25 @@ class DownloadProgressBar(tk.Frame):
 
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
-        self.configure(bg="#1e1e2e")
+        self.configure(bg="#09090b")
 
         self._label = tk.Label(
             self,
             text="",
             anchor="w",
             padx=8,
-            font=("Segoe UI", 9),
-            fg="#b0b0d0",
-            bg="#1e1e2e",
+            font=("Segoe UI", 10),
+            fg="#a1a1aa",
+            bg="#09090b",
         )
-        self._label.pack(fill="x", padx=(8, 8), pady=(2, 0))
+        self._label.pack(fill="x", padx=(8, 8), pady=(4, 0))
 
         self._style = ttk.Style()
         self._style.theme_use("clam")
         self._style.configure(
             "Download.Horizontal.TProgressbar",
-            troughcolor="#2a2a3e",
-            background="#7c5cfc",
+            troughcolor="#27272a",
+            background="#e11d48",
             thickness=18,
             borderwidth=0,
         )
@@ -161,13 +161,13 @@ class Tooltip:
             tw,
             text=self._text,
             justify="left",
-            background="#2a2a3e",
-            foreground="#e0e0e0",
+            background="#18181b",
+            foreground="#f4f4f5",
             relief="solid",
             borderwidth=1,
-            font=("Segoe UI", 9),
-            padx=8,
-            pady=4,
+            font=("Segoe UI", 10),
+            padx=12,
+            pady=8,
             wraplength=350,
         )
         label.pack()
@@ -247,18 +247,18 @@ class AutocompleteDropdown:
         self._top = tk.Toplevel(self._entry)
         self._top.wm_overrideredirect(True)
         self._top.attributes("-topmost", True)
-        self._top.configure(bg="#3a3a4e")
+        self._top.configure(bg="#27272a")
 
         # Outer frame for border effect
-        border_frame = tk.Frame(self._top, bg="#5a5a7e", padx=1, pady=1)
+        border_frame = tk.Frame(self._top, bg="#3f3f46", padx=1, pady=1)
         border_frame.pack(fill="both", expand=True)
 
         self._listbox = tk.Listbox(
             border_frame,
-            font=("Segoe UI", 11),
-            bg="#2a2a3e",
-            fg="#e0e0e0",
-            selectbackground="#7c5cfc",
+            font=("Segoe UI", 12),
+            bg="#18181b",
+            fg="#f4f4f5",
+            selectbackground="#e11d48",
             selectforeground="#ffffff",
             activestyle="none",
             relief="flat",

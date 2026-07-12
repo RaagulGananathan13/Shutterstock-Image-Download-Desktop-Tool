@@ -23,11 +23,11 @@ THUMB_PADDING = 8
 
 def _create_placeholder_image() -> Image.Image:
     """Create a simple gray placeholder image with 'Loading...' text."""
-    img = Image.new("RGB", (THUMB_WIDTH, THUMB_HEIGHT), color=(42, 42, 62))
+    img = Image.new("RGB", (THUMB_WIDTH, THUMB_HEIGHT), color=(24, 24, 27))
     draw = ImageDraw.Draw(img)
     text = "Loading..."
     try:
-        font = ImageFont.truetype("segoeui.ttf", 14)
+        font = ImageFont.truetype("segoeui.ttf", 15)
     except (OSError, IOError):
         font = ImageFont.load_default()
     bbox = draw.textbbox((0, 0), text, font=font)
@@ -35,17 +35,17 @@ def _create_placeholder_image() -> Image.Image:
     th = bbox[3] - bbox[1]
     x = (THUMB_WIDTH - tw) // 2
     y = (THUMB_HEIGHT - th) // 2
-    draw.text((x, y), text, fill=(160, 160, 200), font=font)
+    draw.text((x, y), text, fill=(161, 161, 170), font=font)
     return img
 
 
 def _create_error_image() -> Image.Image:
     """Create an error placeholder for failed thumbnail loads."""
-    img = Image.new("RGB", (THUMB_WIDTH, THUMB_HEIGHT), color=(62, 30, 30))
+    img = Image.new("RGB", (THUMB_WIDTH, THUMB_HEIGHT), color=(69, 10, 10))
     draw = ImageDraw.Draw(img)
     text = "Failed to load"
     try:
-        font = ImageFont.truetype("segoeui.ttf", 12)
+        font = ImageFont.truetype("segoeui.ttf", 13)
     except (OSError, IOError):
         font = ImageFont.load_default()
     bbox = draw.textbbox((0, 0), text, font=font)
@@ -53,17 +53,17 @@ def _create_error_image() -> Image.Image:
     th = bbox[3] - bbox[1]
     x = (THUMB_WIDTH - tw) // 2
     y = (THUMB_HEIGHT - th) // 2
-    draw.text((x, y), text, fill=(200, 100, 100), font=font)
+    draw.text((x, y), text, fill=(248, 113, 113), font=font)
     return img
 
 
 def _create_no_results_image() -> Image.Image:
     """Create a 'No results' placeholder."""
-    img = Image.new("RGB", (300, 200), color=(30, 30, 46))
+    img = Image.new("RGB", (300, 200), color=(9, 9, 11))
     draw = ImageDraw.Draw(img)
     text = "No results found"
     try:
-        font = ImageFont.truetype("segoeui.ttf", 16)
+        font = ImageFont.truetype("segoeui.ttf", 18)
     except (OSError, IOError):
         font = ImageFont.load_default()
     bbox = draw.textbbox((0, 0), text, font=font)
@@ -71,7 +71,7 @@ def _create_no_results_image() -> Image.Image:
     th = bbox[3] - bbox[1]
     x = (300 - tw) // 2
     y = (200 - th) // 2
-    draw.text((x, y), text, fill=(160, 160, 200), font=font)
+    draw.text((x, y), text, fill=(161, 161, 170), font=font)
     return img
 
 
@@ -86,7 +86,7 @@ class ThumbnailGrid(tk.Frame):
 
     def __init__(self, parent, on_click: Callable | None = None, **kwargs):
         super().__init__(parent, **kwargs)
-        self.configure(bg="#1e1e2e")
+        self.configure(bg="#09090b")
         self._on_click = on_click
         self._executor = ThreadPoolExecutor(max_workers=6)
         self._photo_refs: list[ImageTk.PhotoImage] = []  # prevent GC
@@ -98,11 +98,11 @@ class ThumbnailGrid(tk.Frame):
         self._error_pil = _create_error_image()
 
         # Scrollable canvas setup
-        self._canvas = tk.Canvas(self, bg="#1e1e2e", highlightthickness=0, bd=0)
+        self._canvas = tk.Canvas(self, bg="#09090b", highlightthickness=0, bd=0)
         self._scrollbar = tk.Scrollbar(
             self, orient="vertical", command=self._canvas.yview
         )
-        self._inner_frame = tk.Frame(self._canvas, bg="#1e1e2e")
+        self._inner_frame = tk.Frame(self._canvas, bg="#09090b")
 
         self._inner_frame.bind(
             "<Configure>",
@@ -156,7 +156,7 @@ class ThumbnailGrid(tk.Frame):
         label = tk.Label(
             self._inner_frame,
             image=photo,
-            bg="#1e1e2e",
+            bg="#09090b",
             bd=0,
         )
         label.pack(pady=50)
@@ -167,9 +167,9 @@ class ThumbnailGrid(tk.Frame):
         label = tk.Label(
             self._inner_frame,
             text=text,
-            bg="#1e1e2e",
-            fg="#b0b0d0",
-            font=("Segoe UI", 14),
+            bg="#09090b",
+            fg="#a1a1aa",
+            font=("Segoe UI", 15),
             wraplength=400,
             justify="center",
         )
@@ -203,7 +203,7 @@ class ThumbnailGrid(tk.Frame):
             # Create a frame for each thumbnail cell
             cell_frame = tk.Frame(
                 self._inner_frame,
-                bg="#1e1e2e",
+                bg="#09090b",
                 padx=THUMB_PADDING,
                 pady=THUMB_PADDING,
             )
@@ -216,7 +216,7 @@ class ThumbnailGrid(tk.Frame):
             label = tk.Label(
                 cell_frame,
                 image=placeholder_photo,
-                bg="#2a2a3e",
+                bg="#18181b",
                 cursor="hand2",
                 bd=2,
                 relief="flat",
@@ -232,8 +232,8 @@ class ThumbnailGrid(tk.Frame):
             self._tooltips.append(tooltip)
 
             # Hover effects
-            label.bind("<Enter>", lambda e, lbl=label: lbl.config(relief="solid", bd=2, highlightbackground="#7c5cfc"))
-            label.bind("<Leave>", lambda e, lbl=label: lbl.config(relief="flat", bd=2, highlightbackground="#2a2a3e"))
+            label.bind("<Enter>", lambda e, lbl=label: lbl.config(relief="solid", bd=2, highlightbackground="#e11d48"))
+            label.bind("<Leave>", lambda e, lbl=label: lbl.config(relief="flat", bd=2, highlightbackground="#18181b"))
 
             # Click handler
             if self._on_click:
@@ -279,7 +279,7 @@ class ThumbnailGrid(tk.Frame):
             img.thumbnail((THUMB_WIDTH, THUMB_HEIGHT), Image.Resampling.LANCZOS)
 
             # Pad to exact THUMB_WIDTH x THUMB_HEIGHT with dark background
-            padded = Image.new("RGB", (THUMB_WIDTH, THUMB_HEIGHT), (42, 42, 62))
+            padded = Image.new("RGB", (THUMB_WIDTH, THUMB_HEIGHT), (24, 24, 27))
             offset_x = (THUMB_WIDTH - img.width) // 2
             offset_y = (THUMB_HEIGHT - img.height) // 2
             padded.paste(img, (offset_x, offset_y))
