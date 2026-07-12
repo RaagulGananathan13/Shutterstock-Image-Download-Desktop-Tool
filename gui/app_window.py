@@ -24,7 +24,7 @@ from shutterstock_api import (
 from downloader import download_file, make_safe_filename, resolve_filename_collision
 from gui.thumbnail_grid import ThumbnailGrid
 from gui.settings_dialog import SettingsDialog
-from gui.widgets import StatusBar, DownloadProgressBar
+from gui.widgets import StatusBar, DownloadProgressBar, AutocompleteDropdown
 
 
 # Message types for the inter-thread queue
@@ -33,6 +33,7 @@ _MSG_SEARCH_ERROR = "search_error"
 _MSG_DOWNLOAD_PROGRESS = "download_progress"
 _MSG_DOWNLOAD_DONE = "download_done"
 _MSG_DOWNLOAD_ERROR = "download_error"
+_MSG_SUGGESTIONS = "suggestions"
 
 
 class AppWindow:
@@ -72,6 +73,10 @@ class AppWindow:
         self._total_pages = 0
         self._is_searching = False
         self._is_downloading = False
+
+        # Autocomplete state
+        self._suggest_after_id = None  # for debouncing
+        self._search_history: list[str] = []  # local history for fast suggestions
 
         # Thread-safe message queue
         self._queue: queue.Queue = queue.Queue()
@@ -146,7 +151,8 @@ class AppWindow:
             highlightbackground="#3a3a4e",
         )
         self._search_entry.pack(side="left", fill="x", expand=True, ipady=8)
-        self._search_entry.bind("<Return>", lambda e: self._on_search())
+        self._search_entry.bind("<Return>", self._on_search_enter)
+        self._search_entry.bind("<KeyRelease>", self._on_search_key_release)
 
         # Search button
         self._search_btn = tk.Button(
@@ -192,6 +198,12 @@ class AppWindow:
         # Show welcome message
         self._grid.show_message(
             "🔍  Enter a keyword above and click Search\nto find Shutterstock images"
+        )
+
+        # ---- Autocomplete dropdown ----
+        self._autocomplete = AutocompleteDropdown(
+            self._search_entry,
+            on_select=self._on_suggestion_selected,
         )
 
         # ---- Pagination bar ----
@@ -292,10 +304,109 @@ class AppWindow:
                     self._handle_download_done(payload)
                 elif msg_type == _MSG_DOWNLOAD_ERROR:
                     self._handle_download_error(payload)
+                elif msg_type == _MSG_SUGGESTIONS:
+                    self._handle_suggestions(payload)
         except queue.Empty:
             pass
         # Schedule next poll
         self.root.after(50, self._poll_queue)
+
+    # ------------------------------------------------------------------
+    # Autocomplete / suggestions
+    # ------------------------------------------------------------------
+
+    def _on_search_key_release(self, event=None):
+        """Debounced handler for keystrokes in the search entry."""
+        # Ignore navigation and modifier keys
+        if event and event.keysym in ("Return", "Up", "Down", "Escape",
+                                       "Shift_L", "Shift_R", "Control_L",
+                                       "Control_R", "Alt_L", "Alt_R", "Tab"):
+            return
+
+        # Cancel previous pending request
+        if self._suggest_after_id is not None:
+            self.root.after_cancel(self._suggest_after_id)
+
+        # Schedule a new suggestion fetch after 300ms debounce
+        self._suggest_after_id = self.root.after(300, self._fetch_suggestions)
+
+    def _fetch_suggestions(self):
+        """Fetch suggestions in a background thread."""
+        self._suggest_after_id = None
+        query = self._search_var.get().strip()
+
+        if len(query) < 2:
+            self._autocomplete.hide()
+            return
+
+        # Show local history matches immediately (instant feedback)
+        history_matches = [
+            h for h in self._search_history
+            if h.lower().startswith(query.lower()) and h.lower() != query.lower()
+        ]
+        if history_matches:
+            self._autocomplete.update_suggestions(history_matches[:5])
+
+        # Fetch API suggestions in background
+        if self._api:
+            thread = threading.Thread(
+                target=self._suggestions_worker,
+                args=(query,),
+                daemon=True,
+            )
+            thread.start()
+
+    def _suggestions_worker(self, query: str):
+        """Background thread: fetch suggestions from the API."""
+        suggestions = self._api.get_suggestions(query, limit=10)
+        # Only send if the entry still has the same prefix
+        self._queue.put((_MSG_SUGGESTIONS, {
+            "query": query,
+            "suggestions": suggestions,
+        }))
+
+    def _handle_suggestions(self, payload: dict):
+        """Process suggestions on the main thread."""
+        query = payload["query"]
+        suggestions = payload["suggestions"]
+
+        # Only show if the entry text still starts with the query
+        current_text = self._search_var.get().strip()
+        if not current_text.lower().startswith(query.lower()[:2]):
+            return  # user has typed something else
+
+        if suggestions:
+            # Merge with history, dedup, API results first
+            history_matches = [
+                h for h in self._search_history
+                if h.lower().startswith(current_text.lower())
+                and h.lower() != current_text.lower()
+            ]
+            combined = []
+            seen = set()
+            for s in suggestions + history_matches:
+                if s.lower() not in seen and s.lower() != current_text.lower():
+                    combined.append(s)
+                    seen.add(s.lower())
+            self._autocomplete.update_suggestions(combined[:10])
+        else:
+            # No API results — check if we already have history showing
+            if not self._autocomplete.is_visible():
+                self._autocomplete.hide()
+
+    def _on_suggestion_selected(self, value: str):
+        """Handle selection of a suggestion from the dropdown."""
+        self._search_var.set(value)
+        self._search_entry.icursor(tk.END)
+        self._search_entry.focus_set()
+        self._autocomplete.hide()
+        # Trigger search
+        self._on_search()
+
+    def _on_search_enter(self, event=None):
+        """Handle Enter key — hide autocomplete and search."""
+        self._autocomplete.hide()
+        self._on_search()
 
     # ------------------------------------------------------------------
     # Search flow
@@ -316,6 +427,12 @@ class AppWindow:
         if self._is_searching:
             return
 
+        # Add to search history
+        if query not in self._search_history:
+            self._search_history.insert(0, query)
+            self._search_history = self._search_history[:50]  # cap at 50
+
+        self._autocomplete.hide()
         self._current_query = query
         self._current_page = 1
         self._do_search()

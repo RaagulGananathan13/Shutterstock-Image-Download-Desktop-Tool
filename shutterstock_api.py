@@ -211,3 +211,28 @@ class ShutterstockAPI:
                 "The image may not be available for download with this subscription."
             )
         return download_url
+
+    def get_suggestions(self, query: str, limit: int = 10) -> list[str]:
+        """
+        Get search keyword suggestions for autocomplete.
+
+        Hits GET /v2/images/search/suggestions.
+        Returns a list of suggested keyword strings.
+        Silently returns an empty list on any error (autocomplete should
+        never block or crash the UI).
+        """
+        if not query or len(query) < 2:
+            return []
+        try:
+            resp = self._request("GET", "/images/search/suggestions", params={"query": query})
+            data = resp.json()
+            suggestions = data.get("data", [])
+            # The API returns a list of strings directly
+            if suggestions and isinstance(suggestions[0], str):
+                return suggestions[:limit]
+            # Some responses may wrap in objects
+            if suggestions and isinstance(suggestions[0], dict):
+                return [s.get("text", s.get("keyword", "")) for s in suggestions[:limit] if s]
+            return []
+        except Exception:
+            return []

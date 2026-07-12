@@ -176,3 +176,183 @@ class Tooltip:
         if self._tip_window:
             self._tip_window.destroy()
             self._tip_window = None
+
+
+# ---------------------------------------------------------------------------
+# AutocompleteDropdown
+# ---------------------------------------------------------------------------
+
+class AutocompleteDropdown:
+    """
+    A floating dropdown that shows autocomplete suggestions below an Entry widget.
+
+    Usage:
+        dropdown = AutocompleteDropdown(entry_widget, on_select=callback)
+        dropdown.update_suggestions(["sunset", "sunrise", "summer"])
+        dropdown.hide()
+    """
+
+    MAX_VISIBLE = 8  # max items shown without scrolling
+
+    def __init__(self, entry: tk.Entry, on_select=None):
+        self._entry = entry
+        self._on_select = on_select
+        self._top: tk.Toplevel | None = None
+        self._listbox: tk.Listbox | None = None
+        self._suggestions: list[str] = []
+        self._visible = False
+
+        # Bind keyboard navigation
+        entry.bind("<Down>", self._on_key_down, add="+")
+        entry.bind("<Up>", self._on_key_up, add="+")
+        entry.bind("<Escape>", lambda e: self.hide(), add="+")
+
+    def update_suggestions(self, suggestions: list[str]) -> None:
+        """Show or update the dropdown with new suggestions."""
+        self._suggestions = suggestions
+
+        if not suggestions:
+            self.hide()
+            return
+
+        if not self._top or not self._top.winfo_exists():
+            self._create_dropdown()
+
+        self._listbox.delete(0, tk.END)
+        for s in suggestions:
+            self._listbox.insert(tk.END, s)
+
+        # Resize height to fit items
+        visible_count = min(len(suggestions), self.MAX_VISIBLE)
+        self._listbox.config(height=visible_count)
+
+        # Position below the entry
+        self._reposition()
+
+        if not self._visible:
+            self._top.deiconify()
+            self._visible = True
+
+    def hide(self) -> None:
+        """Hide the dropdown."""
+        if self._top and self._top.winfo_exists():
+            self._top.withdraw()
+        self._visible = False
+
+    def is_visible(self) -> bool:
+        return self._visible
+
+    def _create_dropdown(self):
+        """Create the floating Toplevel with listbox."""
+        self._top = tk.Toplevel(self._entry)
+        self._top.wm_overrideredirect(True)
+        self._top.attributes("-topmost", True)
+        self._top.configure(bg="#3a3a4e")
+
+        # Outer frame for border effect
+        border_frame = tk.Frame(self._top, bg="#5a5a7e", padx=1, pady=1)
+        border_frame.pack(fill="both", expand=True)
+
+        self._listbox = tk.Listbox(
+            border_frame,
+            font=("Segoe UI", 11),
+            bg="#2a2a3e",
+            fg="#e0e0e0",
+            selectbackground="#7c5cfc",
+            selectforeground="#ffffff",
+            activestyle="none",
+            relief="flat",
+            bd=0,
+            highlightthickness=0,
+            cursor="hand2",
+        )
+        self._listbox.pack(fill="both", expand=True)
+
+        # Bind click
+        self._listbox.bind("<ButtonRelease-1>", self._on_click_select)
+        # Bind Enter in listbox
+        self._listbox.bind("<Return>", self._on_enter_select)
+
+        # Hide on focus out (with small delay to allow click to register)
+        self._top.bind("<FocusOut>", lambda e: self._entry.after(150, self._check_focus))
+
+    def _reposition(self):
+        """Position the dropdown below the entry widget."""
+        if not self._top or not self._entry.winfo_exists():
+            return
+        x = self._entry.winfo_rootx()
+        y = self._entry.winfo_rooty() + self._entry.winfo_height()
+        w = self._entry.winfo_width()
+        self._top.geometry(f"{w}x{self._listbox.winfo_reqheight() + 2}+{x}+{y}")
+
+    def _check_focus(self):
+        """Hide dropdown if focus is not on the entry or the dropdown."""
+        if not self._top or not self._top.winfo_exists():
+            return
+        try:
+            focused = self._entry.winfo_toplevel().focus_get()
+            if focused != self._entry and focused != self._listbox:
+                self.hide()
+        except (tk.TclError, KeyError):
+            self.hide()
+
+    def _on_click_select(self, event=None):
+        """Handle mouse click on a suggestion."""
+        self._select_current()
+
+    def _on_enter_select(self, event=None):
+        """Handle Enter key in the listbox."""
+        self._select_current()
+        return "break"
+
+    def _on_key_down(self, event=None):
+        """Move selection down in the listbox, or focus the listbox."""
+        if not self._visible or not self._listbox:
+            return
+        cur = self._listbox.curselection()
+        if not cur:
+            self._listbox.selection_set(0)
+            self._listbox.see(0)
+            self._listbox.focus_set()
+        else:
+            idx = cur[0]
+            if idx < self._listbox.size() - 1:
+                self._listbox.selection_clear(0, tk.END)
+                self._listbox.selection_set(idx + 1)
+                self._listbox.see(idx + 1)
+        return "break"
+
+    def _on_key_up(self, event=None):
+        """Move selection up in the listbox, or return focus to entry."""
+        if not self._visible or not self._listbox:
+            return
+        cur = self._listbox.curselection()
+        if cur:
+            idx = cur[0]
+            if idx > 0:
+                self._listbox.selection_clear(0, tk.END)
+                self._listbox.selection_set(idx - 1)
+                self._listbox.see(idx - 1)
+            else:
+                # At the top — return focus to entry
+                self._listbox.selection_clear(0, tk.END)
+                self._entry.focus_set()
+        return "break"
+
+    def _select_current(self):
+        """Select the currently highlighted item."""
+        if not self._listbox:
+            return
+        cur = self._listbox.curselection()
+        if cur:
+            value = self._listbox.get(cur[0])
+            self.hide()
+            if self._on_select:
+                self._on_select(value)
+
+    def destroy(self):
+        """Clean up."""
+        if self._top and self._top.winfo_exists():
+            self._top.destroy()
+            self._top = None
+
