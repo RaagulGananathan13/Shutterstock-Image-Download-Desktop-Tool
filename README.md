@@ -1,4 +1,4 @@
-# Shutterstock Image Search & Download Desktop Tool
+# Shutterstock Studio Hub: Native Windows Image Search Engine
 
 A Windows desktop application that lets you search for images on Shutterstock, preview them as clickable thumbnails in a grid, and download full-resolution versions to a local folder — all through the official Shutterstock API.
 

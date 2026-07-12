@@ -27,7 +27,7 @@ _MSG_SUGGESTIONS = "suggestions"
 class AppWindow:
     def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title("Shutterstock Image Search & Download")
+        self.root.title("Shutterstock Studio Hub")
         self.root.geometry("1024x768")
         self.root.minsize(800, 600)
         self.root.configure(bg="#09090b")
